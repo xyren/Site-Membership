@@ -1,11 +1,11 @@
 <?php
 
 
-class teamphoto{
+class sitemember{
 
 	var $_data;
 	
-	var $_teamphoto_ID;
+	var $_sitemember_ID;
 	var $_ID;
 	
 	var $_table_name;
@@ -23,13 +23,13 @@ class teamphoto{
 		$this->_table_name = TEAMPHOTO_TABLE_LOGS;
 	}
 	
-	function set($_teamphoto_ID){
+	function set($_sitemember_ID){
 		global $wpdb;
-		$this->_teamphoto_ID = $_teamphoto_ID;
-		if(empty($this->_teamphoto_ID)){
+		$this->_sitemember_ID = $_sitemember_ID;
+		if(empty($this->_sitemember_ID)){
 			return false;
 		}
-		$data = $wpdb->get_row("SELECT * FROM {$this->_table_name} WHERE ID = {$this->_teamphoto_ID}", ARRAY_A);
+		$data = $wpdb->get_row("SELECT * FROM {$this->_table_name} WHERE ID = {$this->_sitemember_ID}", ARRAY_A);
 		$this->_data = $this->cleanup($data);
 		
 		
@@ -76,17 +76,17 @@ class teamphoto{
 		global $wpdb;
 		
 		if($ID == 0){
-			$ID = $this->_teamphoto_ID;
+			$ID = $this->_sitemember_ID;
 		}
 		
 		$this->_data = $this->cleanup($emp_data);
 		$wpdb->update($this->_table_name,$this->_data,array('ID'=>$ID));
-		return $wpdb->last_error . $this->_teamphoto_ID;
+		return $wpdb->last_error . $this->_sitemember_ID;
 	}
 	function delete($ID=0){
 		global $wpdb;
 		$wpdb->delete($this->_table_name,array('ID'=>$ID));
-		return $wpdb->last_error . $this->_teamphoto_ID;
+		return $wpdb->last_error . $this->_sitemember_ID;
 	}
 	
 	public function savephoto($photo_src,$sport,$add_path='',$add_img_fname='',$filename = '',$size = 150){
@@ -95,7 +95,7 @@ class teamphoto{
 		
 		$sport_path = '/teams/'. $sport . '/'. $add_path .'/';
 		$sport_path = str_replace('//','/',$sport_path);
-		$img_path = teamphoto::$_uploadDIR . $sport_path ;
+		$img_path = sitemember::$_uploadDIR . $sport_path ;
 		if(!is_dir($img_path)){
 			mkdir($img_path);
 		}
@@ -112,7 +112,7 @@ class teamphoto{
 		
 		if(file_exists($photo_src)){
 			//size always square
-			teamphoto::_resize($photo_src, $size, $size ,$_newfile);
+			sitemember::_resize($photo_src, $size, $size ,$_newfile);
 		}else{
 			$sport_path ='Error: ';
 			$_filename=' Image not exist';

@@ -8,18 +8,32 @@ Version: 9.3
 Author URI: 
 */
 
-define("TEAMPHOTO_TABLE",$wpdb->prefix.'teamphoto');
-define("TEAMPHOTO_TABLE_LOGS",$wpdb->prefix.'teamphoto_logs');
-define("TEAMPHOTO_SECRET",'team-photo');
-define("TEAMPHOTO_URL_PLUG",WP_PLUGIN_URL . '/team-photo');
-define("WP_HOME",site_url());
+define("MEMBERS_TABLE",$wpdb->prefix.'sitemembership');
+define("WPUSERS_TABLE",$wpdb->prefix.'users');
+define("MEMBERS_SECRET",basename(dirname(__FILE__)));
+define("MEMBERS_URL_PLUG",WP_PLUGIN_URL . '/'.basename(dirname(__FILE__)));
+define("MEMBERS_DIR_PLUG",WP_PLUGIN_DIR . '/'.basename(dirname(__FILE__)));
+
+if(!defined('WP_HOME'))
+	define("WP_HOME",site_url());
 
 #$upload_dir = wp_upload_dir();
 
 $upload_dir = array(
 	'baseurl' => WP_HOME .'/images',
 	'basedir' => ABSPATH . 'images'
-);/* 
+);
+
+
+$_memberLevel = array(
+	0 => 'Member',
+	1 => 'Band',
+	2 => 'Venue Manager',
+	3 => 'Modulator',
+	7 => 'Admin',
+);
+
+/* 
 
 
 define("TEAMPHOTO_UPLOAD_URL",$upload_dir['baseurl']);
@@ -29,14 +43,19 @@ define("TEAMPHOTO_UPLOAD_DIR",$upload_dir['basedir']);
 define("TEAMPHOTO_FLAG_URL",$upload_dir['baseurl'].'/flags/flags-16');
 define("TEAMPHOTO_FLAG_DIR",$upload_dir['basedir'].'/flags/flags-16');
 
-
-include_once('menu.team-photo.php');
+*/
+include_once('_inc/menu.php');
+/*
 include_once('ajax.team-photo.php');
-include_once('function.team-photo.php');
-include_once("class.team-photo.php");
 
-include_once("team/class.team.table.php");
-include_once("team/screen.team.php"); 
+
+*/
+include_once('_inc/function.php');
+include_once('_inc/class.members.php');
+include_once('site-member/class.members.table.php');
+include_once('site-member/screen.php'); 
+/*
+
 
 #add Menu as separate sports
 function add_menu_sports(){

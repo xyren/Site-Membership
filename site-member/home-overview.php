@@ -1,7 +1,14 @@
 <div class="wrap">
-	<div id="icon-users" class="icon32 icon32-posts-post"><br></div>
-		<h2>Horse Racing</h2>
-	<br/> 
+	<h1>
+Users	<a href="user-new.php" class="page-title-action">Add New</a>
+</h1>
+
+<ul class='subsubsub'>
+	<li class='all'><a href='users.php' class="current">All <span class="count">(1)</span></a> |</li>
+	<li class='administrator'><a href='users.php?role=administrator'>Administrator <span class="count">(1)</span></a></li>
+</ul>
+
+
 
 	<div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
         <div class="tablenav top">
