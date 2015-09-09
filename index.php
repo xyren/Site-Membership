@@ -33,6 +33,18 @@ $_memberLevel = array(
 	7 => 'Admin',
 );
 
+
+global $_memberLevel;
+
+$_reqID = explode('_',$_GET['page']);
+$_levelID = (int)end($_reqID );
+
+if(array_key_exists($_levelID, $_memberLevel)){
+	$_memberLevel_ID = $_levelID;
+}else{
+	$_memberLevel_ID = -1;
+}
+
 /* 
 
 
@@ -52,7 +64,7 @@ include_once('ajax.team-photo.php');
 */
 include_once('_inc/function.php');
 include_once('_inc/class.members.php');
-include_once('site-member/class.members.table.php');
+include_once('site-member/class.table.php');
 include_once('site-member/screen.php'); 
 /*
 
