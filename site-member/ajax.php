@@ -1,19 +1,17 @@
 <?
 
-add_action('wp_ajax_question_add','question_add');
-add_action('wp_ajax_nopriv_question_add','question_add');
-function question_add($data_post=''){
+add_action('wp_ajax_member_add','member_add');
+//add_action('wp_ajax_nopriv_question_add','question_add'); do not allow to public ajax
+function member_add($data_post=''){
 	global $wpdb;
 	$data = $_POST;
 	unset($data['action'],$data['submit'],$data['ID']);
-	
-	//$member_data = clean_post($data);
-	$data['choices'] = json_encode($data['choices']);
 	
 	$data['date_added'] = date( 'Y-m-d H:i:s');
 	
 	$wpdb->insert($wpdb->prefix . 'questions' , $data);
 	$insert_id= $wpdb->insert_id;
+	
 	
 	if(!empty($insert_id)){
 		$report['text'] =  "New Successfully added. Saved under ID of <b>{$insert_id}</b>";
@@ -29,7 +27,7 @@ function question_add($data_post=''){
 			'user_email' => esc_attr($ProfileContactEmail),
 			'role' => get_option('default_role')
 		);
-		
+		$new_user = wp_insert_user( $userdata );
 	}else{
 		$report['text'] =  'Error: '.$wpdb->last_error;
 		$report['class'] = 'error';

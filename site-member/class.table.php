@@ -42,7 +42,7 @@ class members_list_Table extends WP_List_Table {
 			'user_login'  	    => 'Username',
 			'user_nicename'      => 'Name',
 			'user_email' 	    => 'E-mail',
-			'sem_name' 		    => 'Social Account',
+			'social_account'     => 'Social Account',
 			'user_registered' 	=> 'Date Added',
 		);
 		
@@ -53,7 +53,7 @@ class members_list_Table extends WP_List_Table {
 				'thumb'         => 'thumb',
 				'user_nicename' => 'Name',
 				'user_email' 	=> 'E-mail',
-				'sem_name' 		=> 'Social Account',
+				'social_account' 		=> 'Social Account',
 			);
 		}
 			
@@ -78,7 +78,7 @@ class members_list_Table extends WP_List_Table {
     
 	
     function column_default($item, $column_name){
-        global $wpdb, $sem_name;
+        global $wpdb, $social_account;
 		switch($column_name){
 			case 'ID':
 				return '<span id="td_'.$item->ID.'">'.$item->ID.'</span>';
@@ -90,8 +90,8 @@ class members_list_Table extends WP_List_Table {
 				return $item->$column_name;
 			case 'user_email':
 				return $item->$column_name;
-	        case 'sem_name':
-				return $sem_name[$item->$column_name];
+	        case 'social_account':
+				return $social_account[$item->$column_name];
 	        default:
                 return print_r($item,true); //Show the whole array for troubleshooting purposes
         }
@@ -106,7 +106,7 @@ class members_list_Table extends WP_List_Table {
     }
 	
 	function column_user_login($item){
-		global $wpdb, $sem_name ;
+		global $wpdb, $social_account ;
 		
 		$actions = array(
             'view'      => '<a href="?page=iog-menu_sections&action=view&ID='.$item->ID.'">View Students</a>',
@@ -187,10 +187,10 @@ class members_list_Table extends WP_List_Table {
 		<style type="text/css">
 			#ID{width: 70px !important;}
 			#section_no{width: 250px;}
-			#sem_name{width: 120px;}
+			#social_account{width: 150px;}
 			#remarks{min-width: 150px;}
 			#school_year{width: 80px;}
-			#date_added{width: 150px;}
+			#user_registered{width: 150px;}
 		</style>
 	<script>
 	

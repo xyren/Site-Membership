@@ -16,7 +16,6 @@ define("MEMBERS_DIR_PLUG",WP_PLUGIN_DIR . '/'.basename(dirname(__FILE__)));
 
 if(!defined('WP_HOME'))
 	define("WP_HOME",site_url());
-
 #$upload_dir = wp_upload_dir();
 
 $upload_dir = array(
@@ -24,37 +23,12 @@ $upload_dir = array(
 	'basedir' => ABSPATH . 'images'
 );
 
-
-$_memberLevel = array(
-	0 => 'Member',
-	1 => 'Band',
-	2 => 'Venue Manager',
-	3 => 'Modulator',
-	7 => 'Admin',
-);
-
-
-global $_memberLevel;
-
-$_reqID = explode('_',$_GET['page']);
-$_levelID = (int)end($_reqID );
-
-if(array_key_exists($_levelID, $_memberLevel)){
-	$_memberLevel_ID = $_levelID;
-}else{
-	$_memberLevel_ID = -1;
-}
+require_once('_inc/init.php');
+require_once('_inc/scripts.php');
 
 /* 
-
-
 define("TEAMPHOTO_UPLOAD_URL",$upload_dir['baseurl']);
 define("TEAMPHOTO_UPLOAD_DIR",$upload_dir['basedir']);
-
-
-define("TEAMPHOTO_FLAG_URL",$upload_dir['baseurl'].'/flags/flags-16');
-define("TEAMPHOTO_FLAG_DIR",$upload_dir['basedir'].'/flags/flags-16');
-
 */
 include_once('_inc/menu.php');
 /*

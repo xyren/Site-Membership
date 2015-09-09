@@ -13,7 +13,7 @@ class wp_screen_members{
 	}
  
 	public function admin_menu() {
-		global $sitemember_screen,$sitemember_screen_manage;
+		global $sitemember_screen_manage;
 		//$screen = get_current_screen();
 		foreach($sitemember_screen_manage as $_key => $val){
 			$this->admin_page = $val;
@@ -38,12 +38,8 @@ class wp_screen_members{
 			);
 		}*/
 		
-		
-		$_reqID = explode('_',$_GET['page']);
-		$_levelID = (int)end($_reqID );
-		
 		$wp_list_table = new members_list_Table();
-		$this->admin_screen = WP_Screen::get($sitemember_screen_manage[$_levelID]);
+		$this->admin_screen = WP_Screen::get($sitemember_screen_manage[site_members::levelID()]);
 		$this->admin_screen->add_option(
 			'per_page', 
 			array(
@@ -55,11 +51,11 @@ class wp_screen_members{
 	}
 	
 }
+
 function screen_members_init() {
 	$screenTest = new wp_screen_members();
 }
 add_action( 'init', 'screen_members_init' );
-
 
 function sitemember_list_set_option($status, $option, $value) {
 	if ( 'list_per_page' == $option ) return $value;
