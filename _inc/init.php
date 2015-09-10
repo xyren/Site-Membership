@@ -15,6 +15,26 @@ class site_members{
 		//$this->memberLevel = 
 	}
 	
+	public function init() {
+		
+		foreach (self::rewrite() as $rule => $rewrite) {
+	        add_rewrite_rule( $rule,$rewrite, 'top' );
+	    }
+	  
+		add_filter('template_include', array( 'site_members', 'template_include' ),1,1);  
+		//add_filter('template_redirect', array( 'site_members', 'template_include' ));  
+		
+		add_filter( 'query_vars', array( 'site_members', 'prefix_register_query_var'));
+	}
+	
+	public function prefix_register_query_var($vars){
+	    $vars[] = 'cl';
+	    $vars[] = 'mod';
+	    $vars[] = 'func';
+	    return $vars;
+	}
+	
+	
 	public function memberLevel($_ID=''){
 	
 		if(!empty($_ID) and $_ID !== false){
@@ -41,6 +61,101 @@ class site_members{
 		return false;
 	}
 	
+	public function rewriteRules($rules){
+		$newrules = self::rewrite();
+		return $newrules + $rules;
+	}
 	
+	public function rewrite(){
+		$newrules = array();
+		$newrules['profile-casting/jobs/(.*)/(.*)$'] = 'index.php?type=castingjobs&target=$matches[1]&value=$matches[2]&rbgroup=casting';
+		$newrules['profile-casting/(.*)$'] = 'index.php?type=casting&target=$matches[1]&rbgroup=casting';
+		$newrules['profile-casting'] = 'index.php?type=casting&rbgroup=casting';
+		
+		$newrules['account/(.*)$'] = 'index.php?cl=site_member&mod=account&func=$matches[1]';
+		$newrules['account'] = 'index.php?cl=site_member&mod=account&func=index';
+		return $newrules;
+	}
+	
+	public function removeRules($rules){
+		$newrules = self::rewrite();
+		foreach ($newrules as $rule => $rewrite) {
+	        unset($rules[$rule]);
+	    }
+		return $rules;
+	}
+	
+	public function template_include($template){
+		
+		$_templateDir = MEMBERS_DIR_PLUG . '/template';
+		$_class = get_query_var( 'cl' );
+		$_module = get_query_var('mod');
+		$_function = get_query_var('func');
+		if($_class == "site_member"){
+			switch ($_module){
+				case 'account':
+					print_r( $_function);
+					$_access = $_templateDir . '/'. $_module .'/'. $_function .'.php';
+					if(file_exists($_access)){
+						return $_access;
+					}
+					if(empty($_function))
+						return $_templateDir . '/'. $_module .'/index.php';
+					return $_templateDir . '/'. $_module .'/404.php';
+					
+				default: echo "No match!"; break;	
+			}
+		}
+		return $template;
+	}
+	
+	public function install(){
+		global $wp_rewrite;
+		foreach(self::$memberLevel as $key => $val){
+			$_member = new member_level($key);
+			add_role( $_member->key ,$_member->name, array( 'read' => true, 'level_0' => true ));
+		}
+	    remove_role( 'subscriber');
+		add_filter('rewrite_rules_array', 'site_members::rewriteRules'); 
+		$wp_rewrite->flush_rules( false );
+	}
+	
+	public function uninstall(){
+		global $wp_rewrite;
+		foreach(self::$memberLevel as $key => $val){
+			$_member = new member_level($key);
+			remove_role( $_member->key);
+		}
+		add_role( 'subscriber','Subscriber', array( 'read' => true, 'level_0' => true ));
+		
+		add_action('generate_rewrite_rules', function ($wp_rewrite){
+			$newrules = self::rewrite();
+            $wp_rewrite->rules = $newrules + $wp_rewrite->rules;
+		});
+		add_filter('rewrite_rules_array', 'site_members::removeRules'); 
+		$wp_rewrite->flush_rules( false );
+	}
 	
 }
+
+class member_level{
+	
+	public $id;
+	public $name;
+	public $role;
+	
+	public function __construct($_ID = 0) {
+		
+		if(!empty($_ID) and $_ID !== false){
+			if(array_key_exists($_ID, site_members::$memberLevel)){
+				$_t = site_members::$memberLevel;
+				$this->id = $_ID;
+				$this->name = $_t[$_ID];
+				$this->key = str_replace( '-', '_', sanitize_title( $_t[$_ID] ));
+				$this->role = 0;
+			}
+		}
+	}
+}
+
+

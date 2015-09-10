@@ -13,19 +13,21 @@
 	
 	<?
 	
+	$now = current_time('mysql');
+
 	global $wpdb;
-	$_temp ='user_2308';
+	$_temp ='the_x_con';
 		$userdata = array(
 			'user_pass' => esc_attr($_temp),
 			'user_login' => esc_attr($_temp),
 			'first_name' => esc_attr($_temp .'first'),
 			'last_name' => esc_attr($_temp.' last'),
 			'user_email' => esc_attr($_temp .'@email.com'),
-			'role' => get_option('default_role')
+			'role' => 'modulator'
 		);
 		$new_user = wp_insert_user( $userdata );
 		
-		$wpdb->insert(MEMBERS_TABLE , array('userID'=>$new_user , 'member_accepted'=>'now()' , 'level_id' => 3));
+		$wpdb->insert(MEMBERS_TABLE , array('userID'=>$new_user , 'member_accepted'=>$now , 'level_id' => 4));
 		$insert_id= $wpdb->insert_id;
 	
 		?>

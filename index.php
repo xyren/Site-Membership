@@ -40,9 +40,25 @@ include_once('_inc/function.php');
 include_once('_inc/class.members.php');
 include_once('site-member/class.table.php');
 include_once('site-member/screen.php'); 
+
+add_action( 'init', 'site_members::init' );
+
+register_activation_hook( __FILE__, 'site_member_install');
+register_deactivation_hook(__FILE__, 'uninstall_site_member');
+function site_member_install(){
+    site_members::install();
+}
+function uninstall_site_member(){
+	site_members::uninstall();
+}
+
+
 /*
 
 
+
+
+print_r(site_members::removeRules());
 #add Menu as separate sports
 function add_menu_sports(){
 
