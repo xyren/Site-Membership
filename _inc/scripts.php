@@ -12,6 +12,10 @@ class member_scripts extends site_members {
 		wp_register_script( 'jquery-uploadify', MEMBERS_URL_PLUG.'/uploadify/jquery.uploadify.min.js');
 		wp_register_style( 'uploadify', MEMBERS_URL_PLUG.'/uploadify/uploadify.css');
 		
+		wp_register_script('jquery-validate', MEMBERS_URL_PLUG.'/assets/js/jquery_validation/dist/jquery.validate.min.js',array('jquery'));
+		wp_register_script('jquery-validate-addt', MEMBERS_URL_PLUG.'/assets/js/jquery_validation/dist/additional-methods.min.js',array('jquery','jquery-validate'));
+		wp_register_script('site-member_account-form', MEMBERS_URL_PLUG.'/assets/js/account-form.js',array('jquery','jquery-validate','jquery-validate-addt'));
+		
 		//wp_enqueue_script('jquery-validate');
 		//wp_enqueue_script('jquery-uploadify');
 		//wp_enqueue_script('media-upload');
@@ -33,6 +37,9 @@ class member_scripts extends site_members {
 		
 		//wp_enqueue_script( 'password-strength-meter' );
 		wp_enqueue_style('uploadify');
+		wp_enqueue_script('jquery-validate');
+		wp_enqueue_script('jquery-validate-addt');
+		wp_enqueue_script('site-member_account-form');
 		//wp_enqueue_script('jquery-uploadify');
 		//wp_print_scripts('simple-user-password-generator');
 		

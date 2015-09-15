@@ -1,27 +1,126 @@
 <?php
 
 
-class sitemember{
+class account extends site_members{
 
 	var $_data;
 	
 	var $_sitemember_ID;
 	var $_ID;
-	
-	var $_table_name;
-	public static $_uploadDIR = TEAMPHOTO_UPLOAD_DIR;
-	public static $_uploadURL = TEAMPHOTO_UPLOAD_URL;
+	public static $_table = MEMBERS_TABLE;
 	
 	function __construct(){
-		$this->_table_name = TEAMPHOTO_TABLE;
+		
 	}
 	
+	public function ajax_init(){
+
+		add_action('wp_ajax_checkusername',array('account','checkusername'));
+		add_action('wp_ajax_nopriv_checkusername',array('account','checkusername'));
+		add_action('wp_ajax_checkemail',array('account','checkemail'));
+		add_action('wp_ajax_nopriv_checkemail',array('account','checkemail'));
+		
+	}
+	
+	public function checkusername($data_post=''){
+		global $wpdb;
+		
+		if(!is_array($data_post))
+			$data = $_POST;
+		else
+			$data = $data_post;
+		
+        if(username_exists($data['user']))
+            echo 'true';
+        else
+            echo 'false';
+        
+        exit;
+	}
+	
+	public function checkemail($data_post=''){
+		global $wpdb;
+		
+		if(!is_array($data_post))
+			$data = $_POST;
+		else
+			$data = $data_post;
+			
+        if(email_exists($data['email']))
+            echo 'true';
+        else
+            echo 'false';
+        
+        exit;
+	}
+	
+	
+	public function login($_username ='', $_password ='', $_remember= false, $_nonce='', $_redirect=''){
+		global $error,$current_user;
+		
+		//security check for cache based etc.
+		if (!wp_verify_nonce($_nonce,MEMBERS_SECRET.'_account_login')){
+			return false;
+		}
+		
+		$login = wp_signon(
+			array(
+				'user_login' =>$_username , 
+				'user_password' => $_password, 
+				'remember' => $_remember
+			));
+
+        get_currentuserinfo();
+    
+		if(isset($login->ID)) {
+			//check if user login success
+			wp_set_current_user($login->ID);// populate
+			
+			if(!empty($_redirect)){
+				header("Location: ". get_bloginfo("wpurl").$_redirect);
+			} else {
+				// If Admin, redirect to plugin
+				if( $user_info->user_level > 7) {
+					echo 'admin';
+				} else {
+					header("Location: ". get_bloginfo("wpurl"). $customUrl);
+				}
+			}
+			return true;
+		}
+		
+		if ( is_wp_error($login))
+			return false;
+	}
+	
+	public function add($_data){
+	
+		global $wpdb;
+		$now = current_time('mysql');
+		$userdata = array(
+			'user_login' => esc_attr($_data['user']),
+			'user_pass' => esc_attr($_data['pass']),
+			'first_name' => esc_attr($_data['fname']),
+			'last_name' => esc_attr($_data['lname']),
+			'user_email' => esc_attr($_data['email']),
+			'role' =>  esc_attr($_data['role']),
+		);
+		
+		//double check the username-- anti hack :P
+		if(self::checkusername($_data['user']))
+		$new_user = wp_insert_user( $userdata );
+		
+		$wpdb->insert(MEMBERS_TABLE , array('userID'=>$new_user , 'member_accepted'=>$now , 'level_id' => 4));
+		$insert_id= $wpdb->insert_id;
+	
+	}
+	/* 
 	function setPhoto(){
 		$this->_table_name = TEAMPHOTO_TABLE;
 	}
 	function setLogs(){
 		$this->_table_name = TEAMPHOTO_TABLE_LOGS;
-	}
+	} */
 	
 	function set($_sitemember_ID){
 		global $wpdb;
@@ -65,12 +164,12 @@ class sitemember{
 		$this->add($data_logs);
 	}
 	
-	function add($emp_data){
+	/* function add($emp_data){
 		global $wpdb;
 		$this->_data = $this->cleanup($emp_data);
 		$wpdb->insert($this->_table_name,$this->_data);
 		return $wpdb->last_error . $wpdb->insert_id;
-	}
+	} */
 	function update($emp_data,$ID=0){
 	
 		global $wpdb;
@@ -243,7 +342,9 @@ class sitemember{
 		$count = $wpdb->get_var($wpdb->prepare($q));
 		return $count;
 	}
+
 }
+
 
 if(!function_exists('unstrip_array')){
 	function unstrip_array($array){

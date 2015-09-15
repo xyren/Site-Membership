@@ -25,12 +25,14 @@ class site_members{
 		//add_filter('template_redirect', array( 'site_members', 'template_include' ));  
 		
 		add_filter( 'query_vars', array( 'site_members', 'prefix_register_query_var'));
+		account::ajax_init();
 	}
 	
 	public function prefix_register_query_var($vars){
 	    $vars[] = 'cl';
 	    $vars[] = 'mod';
 	    $vars[] = 'func';
+	    $vars[] = 'lv';
 	    return $vars;
 	}
 	
@@ -72,8 +74,13 @@ class site_members{
 		$newrules['profile-casting/(.*)$'] = 'index.php?type=casting&target=$matches[1]&rbgroup=casting';
 		$newrules['profile-casting'] = 'index.php?type=casting&rbgroup=casting';
 		
+		$newrules['signup/(.*)$'] = 'index.php?cl=site_member&mod=account&func=signup&lv=$matches[1]';
+		$newrules['signup'] = 'index.php?cl=site_member&mod=account&func=signup';
+		$newrules['register'] = 'index.php?cl=site_member&mod=account&func=signup';
+		
 		$newrules['account/(.*)$'] = 'index.php?cl=site_member&mod=account&func=$matches[1]';
 		$newrules['account'] = 'index.php?cl=site_member&mod=account&func=index';
+		
 		return $newrules;
 	}
 	
@@ -110,7 +117,7 @@ class site_members{
 	}
 	
 	public function install(){
-		global $wp_rewrite;
+		global $wp_rewrite, $wpdb;
 		foreach(self::$memberLevel as $key => $val){
 			$_member = new member_level($key);
 			add_role( $_member->key ,$_member->name, array( 'read' => true, 'level_0' => true ));
@@ -118,6 +125,28 @@ class site_members{
 	    remove_role( 'subscriber');
 		add_filter('rewrite_rules_array', 'site_members::rewriteRules'); 
 		$wp_rewrite->flush_rules( false );
+		
+		$_sql = array();
+		$_sql[] = '
+			CREATE TABLE IF NOT EXISTS `'. MEMBERS_TABLE .'` (
+			  `ID` bigint(20) NOT NULL,
+			  `userID` bigint(11) NOT NULL,
+			  `member_accepted` datetime NOT NULL,
+			  `level_id` int(11) NOT NULL
+			) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+			';
+		$_sql[] = 'ALTER TABLE `'. MEMBERS_TABLE .'` ADD PRIMARY KEY (`ID`);';
+
+		
+		$_error = array();
+		foreach($_sql as $_query){
+			$wpdb->query($_query);
+			if(!empty($wpdb->last_error)){
+				$_error[] = $wpdb->last_error;
+			}
+		}
+		
+		
 	}
 	
 	public function uninstall(){
