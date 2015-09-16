@@ -146,6 +146,7 @@ class site_members{
 			}
 		}
 		
+		update_option('site_membership_version',site_membership_version);
 		
 	}
 	

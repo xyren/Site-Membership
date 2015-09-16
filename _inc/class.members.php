@@ -15,43 +15,53 @@ class account extends site_members{
 	
 	public function ajax_init(){
 
-		add_action('wp_ajax_checkusername',array('account','checkusername'));
-		add_action('wp_ajax_nopriv_checkusername',array('account','checkusername'));
-		add_action('wp_ajax_checkemail',array('account','checkemail'));
-		add_action('wp_ajax_nopriv_checkemail',array('account','checkemail'));
+		add_action('wp_ajax_account_checkusername',array('account','checkusername'));
+		add_action('wp_ajax_nopriv_account_checkusername',array('account','checkusername'));
+		add_action('wp_ajax_account_checkemail',array('account','checkemail'));
+		add_action('wp_ajax_nopriv_account_checkemail',array('account','checkemail'));
 		
 	}
 	
 	public function checkusername($data_post=''){
 		global $wpdb;
 		
-		if(!is_array($data_post))
-			$data = $_POST;
-		else
+		$data = $_POST;
+		if(is_array($data_post))
 			$data = $data_post;
 		
-        if(username_exists($data['user']))
-            echo 'true';
-        else
-            echo 'false';
-        
-        exit;
+        if(username_exists($data['user'])){
+            if(!is_array($data_post)){
+				echo '1';exit;
+			}
+            return true;
+		}
+        return false;
 	}
 	
 	public function checkemail($data_post=''){
 		global $wpdb;
 		
-		if(!is_array($data_post))
-			$data = $_POST;
-		else
+		$data = $_POST;
+		if(is_array($data_post))
 			$data = $data_post;
 			
-        if(email_exists($data['email']))
-            echo 'true';
-        else
-            echo 'false';
+        if(email_exists($data['email'])){
+            if(!is_array($data_post)){
+				echo '1';exit;
+			}
+			return true;
+        }
+        return false;
         
-        exit;
+	}
+	
+	public function validate_username($str =''){
+        $allowed = array(".", "-", "_");
+        if ( ctype_alnum(str_replace($allowed,'',$str))){
+            return true;
+        }else{
+            return false;
+        }
 	}
 	
 	
@@ -93,27 +103,88 @@ class account extends site_members{
 			return false;
 	}
 	
-	public function add($_data){
+	public function add_validate($_data,$_role = 0){
+		global $wpdb;
+		
+		//$_data = $data_post;
+		$_data['role'] = $_role;
+		if(empty($_role)) $_data['role'] =1;//default signup level 1= members
+		
+		//pass will be auto generate
+		$_required = array('user','pass','fname','lname','email','role');
+		
+		if(!isset($_data['pass'])){
+			$_data['pass'] = wp_generate_password( 8, false );
+		}
+		$_error =array();
+		foreach($_required as $key){
+			if(empty($_data[$key])){
+				$_error[$key] = 'This field is required.';
+			}
+		}
+		//check valid username
+		if(account::validate_username($_data['user']) == true){
+			//check duplicate
+			if(account::checkusername($_data) == true and !empty($_data['user'])){
+				$_error['user'] = 'Username already exist.';
+			}
+		}else{
+			if(!empty($_data['user']))
+				$_error['user'] = 'Invalid username. Only (_)underscore and (.)dot are special characters allowed.';
+		}
+		
+		if(!empty($_data['user']) and strlen($_data['user']) <=3){
+			$_error['user'] = 'Minimum of 4 characters.';
+		}
+		
+		
+		if (filter_var($_data['email'], FILTER_VALIDATE_EMAIL)){
+			if(account::checkemail($_data) == true and !empty($_data['user'])){
+				$_error['email'] = 'Email already exist.';
+			}
+		}else{
+			if(!empty($_data['email']))
+				$_error['email'] = 'Invalid email address.';
+		}
+		
+		
+		if(!empty($_error))
+			return $_error;
+		
+		return account::add($_data);
+		
+	}
 	
+	public function add($_data){
 		global $wpdb;
 		$now = current_time('mysql');
+		
+		
+		$_member = new member_level(esc_attr($_data['role']));
+		$_roleID = $_member->key;
+			
+			
 		$userdata = array(
 			'user_login' => esc_attr($_data['user']),
 			'user_pass' => esc_attr($_data['pass']),
 			'first_name' => esc_attr($_data['fname']),
 			'last_name' => esc_attr($_data['lname']),
 			'user_email' => esc_attr($_data['email']),
-			'role' =>  esc_attr($_data['role']),
+			'role' =>  $_roleID,
 		);
-		
-		//double check the username-- anti hack :P
-		if(self::checkusername($_data['user']))
+		//add to wordpress users
 		$new_user = wp_insert_user( $userdata );
-		
-		$wpdb->insert(MEMBERS_TABLE , array('userID'=>$new_user , 'member_accepted'=>$now , 'level_id' => 4));
+		//add to our site-member table relationship
+		$wpdb->insert(MEMBERS_TABLE , array('userID'=>$new_user , 'member_accepted'=>$now , 'level_id' => $_data['role']));
 		$insert_id= $wpdb->insert_id;
-	
+		return $insert_id;
 	}
+	
+	
+	
+	
+	
+	
 	/* 
 	function setPhoto(){
 		$this->_table_name = TEAMPHOTO_TABLE;

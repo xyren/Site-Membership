@@ -3,11 +3,12 @@
 Plugin Name: Site Membership
 Plugin URI: 
 Description: Site Membership
-Author: Jenner ALagao
-Version: 9.3
+Author: Jenner Alagao
+Version: 0.15.9.16
 Author URI: 
 */
 
+define("site_membership_version",'0.15.9.16');//its base on date :P y.m.d
 define("MEMBERS_TABLE",$wpdb->prefix.'sitemembership');
 define("WPUSERS_TABLE",$wpdb->prefix.'users');
 define("MEMBERS_SECRET",basename(dirname(__FILE__)));
@@ -25,13 +26,14 @@ $upload_dir = array(
 
 require_once('_inc/init.php');
 require_once('_inc/scripts.php');
+include_once('_inc/menu.php');
 
 /* 
+
 define("TEAMPHOTO_UPLOAD_URL",$upload_dir['baseurl']);
 define("TEAMPHOTO_UPLOAD_DIR",$upload_dir['basedir']);
-*/
-include_once('_inc/menu.php');
-/*
+
+
 include_once('ajax.team-photo.php');
 
 
@@ -55,9 +57,6 @@ function uninstall_site_member(){
 
 /*
 
-
-
-
 print_r(site_members::removeRules());
 #add Menu as separate sports
 function add_menu_sports(){
@@ -72,8 +71,6 @@ function add_menu_sports(){
 		add_submenu_page('team-photo',$distinctSport.' Team logo',' &raquo; '.$distinctSport,'administrator','team-photo&filter='.$url_sport,'teamphoto_ui');
 		//echo "<option>{$distinctSport}</option>";
 	}
-		
-	
 }
 add_action('admin_menu', 'add_menu_sports');
  */
