@@ -146,7 +146,10 @@ class account extends site_members{
 			if(!empty($_data['email']))
 				$_error['email'] = 'Invalid email address.';
 		}
-		
+		//security check for cache based etc.
+		if (!wp_verify_nonce($_data['_wpnonce'],MEMBERS_SECRET.'_account_signup')){
+			$_error['nonce'] = 'Session expired. please refresh the page.';
+		}
 		
 		if(!empty($_error))
 			return $_error;
