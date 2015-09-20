@@ -20,6 +20,28 @@ class account extends site_members{
 		add_action('wp_ajax_account_checkemail',array('account','checkemail'));
 		add_action('wp_ajax_nopriv_account_checkemail',array('account','checkemail'));
 		
+		add_action('wp_ajax_settings_save',array('account','settings_save'));
+		
+	}
+	
+	public function settings_save($data_post=''){
+		global $wpdb;
+		
+		$data = $_POST;
+		if(is_array($data_post))
+			$data = $data_post;
+		
+		unset($data['_wp_http_referer'],$data['_wpnonce'],$data['action']);
+		update_option('site-member-settings',$data);
+		/* 
+        if(username_exists($data['user'])){
+            if(!is_array($data_post)){
+				echo '1';exit;
+			}
+            return true;
+		} */
+		echo true;
+        exit;
 	}
 	
 	public function checkusername($data_post=''){
@@ -417,18 +439,4 @@ class account extends site_members{
 		return $count;
 	}
 
-}
-
-
-if(!function_exists('unstrip_array')){
-	function unstrip_array($array){
-		foreach($array as &$val){
-			if(is_array($val)){
-				$val = unstrip_array($val);
-			}else{
-				$val = stripslashes($val);
-			}
-		}
-	return $array;
-	}
 }

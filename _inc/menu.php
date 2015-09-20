@@ -25,9 +25,19 @@ function sitemember_menu(){
 			
 			
 			if(isset($_GET['action'])== 'add'){
-				add_action('admin_print_scripts','member_scripts::member_form_add');
+				add_action('admin_print_scripts',array('member_scripts','member_form_add'));
+			}
+			
+			
+		}else{
+			if(is_admin()){
+				if(strrpos($_GET['page'],'site-member') !== false){
+					add_action('admin_print_scripts',array('member_scripts','admin'));
+					echo "wow";
+				}
 			}
 		}
+		
 	}
 	
 	

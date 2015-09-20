@@ -10,7 +10,6 @@
 		}?>
 	</h1>
 	
-	
 	<p>Create a brand new <?=$_level;?> and add them to this site.</p>
 	
 	<div id="ajax-response"></div>

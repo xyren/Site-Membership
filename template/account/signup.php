@@ -1,11 +1,27 @@
 <?
 
-
-add_action('wp_print_scripts','member_scripts::member_form_add');
-
-//wp_enqueue_style('jquery'); 
+$_options = get_option('site-member-settings');
+add_action('wp_print_styles',array('member_scripts','member_form_add'));
+add_action('wp_print_scripts',array('member_scripts','member_form_add'));
 
 get_header();
+
+
+if(empty($_options['allow_registration'])){
+	
+	echo 'registration is currently closed.';
+	exit;
+}
+
+if(@!in_array('website',$_options['allow_registration_social'])){
+	echo 'Site registration is currently not available. please try other options';
+	
+	exit;
+	
+}
+
+
+
 
 $_level = get_query_var('lv');
 if(!empty($_level)){
@@ -39,10 +55,7 @@ if(isset($_POST['submit'])){
 		unset($_data); //remove all post data.
 	}
 	
-	
 }
-
-
 
 ?>
 
