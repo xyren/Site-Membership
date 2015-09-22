@@ -7,7 +7,7 @@ Author: Jenner Alagao
 Version: 0.15.9.16
 Author URI: 
 */
-
+global $wpdb;
 define("site_membership_version",'0.15.9.16');//its base on date :P y.m.d
 define("MEMBERS_TABLE",$wpdb->prefix.'sitemembership');
 define("WPUSERS_TABLE",$wpdb->prefix.'users');
