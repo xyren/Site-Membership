@@ -1,12 +1,14 @@
+<?
+
+?>
+
 <div class="wrap">	
 	<h1>Settings</h1>
-	
 	
 	<div id="ajax-response"></div>
 	<?
 	
 	$_options = get_option('site-member-settings');
-	
 	//print_r($_options);
 	?>
 	
@@ -17,101 +19,84 @@
 			$(this).api_ajax("#ajax-response","Settings successfully saved.");
 			return false;
 		});
+		
+		jQuery('.nav-tab').on("click", function(){
+			jQuery('.nav-tab').removeClass('nav-tab-active');
+			jQuery(this).addClass('nav-tab-active');
+			jQuery(this).blur();
+			var tab_ID = jQuery(this).attr('tab-id');
+			var tab_title = jQuery(this).attr('title');
+			jQuery('.nav-tab-wrapper-content').hide();
+			jQuery('#'+tab_ID).fadeIn();
+			<?
+			$page_link = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+			$page_link .= "?page={$_GET['page']}&tab=";
+			?>
+			window.history.pushState("Site Member Settings"+tab_title, "Settings: "+tab_title, "<?=$page_link;?>"+tab_ID);
+			return false;
+		});
+		
 	});
 	</script>
+	<style>
+		.hide{display:none}
+	</style>
 	
+	<br/>
 	
+    <h2 class="nav-tab-wrapper">
+    <? 
+		
+	$tabs = array();
+	$settings_tabs = array();
+	
+	foreach (glob(MEMBERS_DIR_PLUG .'/site-member/settings_*.php') as $filename){
+        $_info = get_file_data($filename,array('Tab Name','Tab ID'));
+		$tabs[$_info[1]] = $_info[0];
+		$settings_tabs[] = $filename;
+	}
+    
+    echo '';
+    $current = empty($_GET['tab']) ? 'tab-content-api' : $_GET['tab'];
+    foreach( $tabs as $tab => $name ){
+        $class = ( $tab == $current ) ? ' nav-tab-active' : '';
+		echo "<a class='nav-tab{$class}' href='?page={$_GET['page']}&tab={$tab}' tab-id='{$tab}' title='{$name}'>$name</a>";
+    }
+    ?></h2>
+    <?
+    $nextend_fb_connect = maybe_unserialize(get_option('nextend_fb_connect'));
+    
+    
+    print_r($nextend_fb_connect);
+    ?>
+    
+    
+    
 	<form method="post" name="site-member-settings" id="site-member-settings">
 		<input type="hidden" name="action" value="settings_save" />
 		
 		<?php wp_nonce_field(MEMBERS_SECRET.'_settings'); ?>
 		
-		<h3 class="title">Registration/Login</h3>
-		
-		<p>Default configuration about registration and some affected about Login.</p>
-		
-		<table class="form-table">
-			<tr>
-				<th scope="row">Members Registration/ Login</th>
-				<td>
-					<fieldset>
-						<legend class="screen-reader-text"><span>Members Registration</span></legend>
-						<label for="allow_registration">
-							<input name="allow_registration" type="checkbox" id="allow_registration" value="true" <? checked( $_options['allow_registration'], true);?>/>
-							Allow registration
-						</label>
-						<br />
-						
-						<label for="allow_registration_social_website">
-							<input name="allow_registration_social[]" type="checkbox" id="allow_registration_social_website" value="website" <? checked(@in_array('website',$_options['allow_registration_social']));?>/>
-							Using Website
-						</label>
-						<br /><label for="allow_registration_social_facebook">
-							<input name="allow_registration_social[]" type="checkbox" id="allow_registration_social_facebook" value="facebook" <? checked(@in_array('facebook',$_options['allow_registration_social']));?>/>
-							Using Facebook
-						</label>
-						<br />
-						<label for="allow_registration_social_twitter">
-							<input name="allow_registration_social[]" type="checkbox" id="allow_registration_social_twitter" value="twitter" <? checked(@in_array('twitter',$_options['allow_registration_social']));?>/>
-							Using Twitter
-						</label>
-						<br />
-						<label for="allow_registration_social_google">
-							<input name="allow_registration_social[]" type="checkbox" id="allow_registration_social_google" value="google" <? checked(@in_array('google',$_options['allow_registration_social']));?>/>
-							Using Google/ Gmail
-						</label>
-						<br />
-						
-						
-					
-				<p class="description">(If not allow, all social registration option doesn't apply.)</p>
-				</fieldset>
-				</td>
-			</tr>
-			
-			<tr class="avatar-settings">
-				<th scope="row">Registration Default status</th>
-				<td>
-					<fieldset><legend class="screen-reader-text"><span>Registration Default status</span></legend>
-						<label><input type='radio' name='default_registration_status' value='active' <? checked( $_options['default_registration_status'], 'active');?>/>Active</label><br />
-						<label><input type='radio' name='default_registration_status' value='pending' <? checked( $_options['default_registration_status'], 'pending');?>/>Pending for approval</label><br />
-						<label><input type='radio' name='default_registration_status' value='inactive' <? checked( $_options['default_registration_status'], 'inactive');?> />InActive</label><br />
-						<label><input type='radio' name='default_registration_status' value='blocked' <? checked( $_options['default_registration_status'], 'blocked');?>/>Blocked</label><br />
-					</fieldset>
-				</td>
-			</tr>
-			
-			<tr>
-				<th scope="row">Members Registration Level</th>
-				<td>
-					<fieldset>
-						<legend class="screen-reader-text"><span>Members Registration Level</span></legend>
-						
-						<? foreach(site_members::$memberLevel as $key => $val){?>
-						<label for="allow_registration_level_<?=$key;?>">
-							<input name="allow_registration_level[]" type="checkbox" id="allow_registration_level_<?=$key;?>" value="<?=$key;?>" <? checked(@in_array($key,$_options['allow_registration_level']));?>/>
-							<?=$val;?>
-						</label>
-						<br />
-						
-						<? } ?>
-				</fieldset>
-				</td>
-			</tr>
-			
-		</table>
-		
-		invite sign up settings.. only allow if admin and modulator.
-		
-		
-		
+		<?
+		global $_include;
+		$_include = false;
+		foreach ($settings_tabs as $filename){
+            include($filename);
+		}
+		?>
 		
 		<p class="submit">
 			<input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"  />
 		</p>
 		
 	</form>
-
+	
+	<script>
+			//default tab
+			jQuery(document).ready(function($) {
+				$('#<?=$current;?>').fadeIn();
+			});
+	</script>
 
 
 </div>

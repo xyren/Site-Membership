@@ -5,36 +5,26 @@ add_action('wp_print_styles',array('member_scripts','member_form_add'));
 add_action('wp_print_scripts',array('member_scripts','member_form_add'));
 
 get_header();
+$_keyLevel = site_members::get_frontend_levelID();
 
 
+
+$_levelTitle = site_members::memberLevel($_keyLevel);
 if(empty($_options['allow_registration'])){
-	
 	echo 'registration is currently closed.';
 	exit;
 }
 
 if(@!in_array('website',$_options['allow_registration_social'])){
 	echo 'Site registration is currently not available. please try other options';
-	
 	exit;
-	
 }
 
-
-
-
-$_level = get_query_var('lv');
-if(!empty($_level)){
-	
-	$_level=ucwords(str_replace('-',' ',$_level));
-	if(in_array($_level, site_members::$memberLevel)){
-		$_levelTitle = $_level;
-	}
-}else{
-	$_levelTitle = $_level = 'Member';
+if(@!in_array($_keyLevel,$_options['allow_registration_level'])){
+	echo 'Registration for '. $_levelTitle .' is closed. ';
+	exit;
 }
 
-(int)$_keyLevel = array_search($_levelTitle, site_members::$memberLevel); // $key = 2; level
 
 
 $_error = '';
@@ -94,6 +84,9 @@ if(isset($_POST['submit'])){
 	
 	
 </form>
+
+<div class="new-fb-btn new-fb-1 new-fb-default-anim"><div class="new-fb-1-1"><div class="new-fb-1-1-1">CONNECT WITH</div></div></div>
+<a href="http://wp.xyren.pc/wp-login.php?loginFacebook=1&redirect=http://wp.xyren.pc" onclick="window.location = 'http://wp.xyren.pc/wp-login.php?loginFacebook=1&redirect='+window.location.href; return false;"> <img src="HereComeTheImage" /> </a>
 <script>
 
 

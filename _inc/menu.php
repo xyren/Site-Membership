@@ -33,7 +33,7 @@ function sitemember_menu(){
 			if(is_admin()){
 				if(strrpos($_GET['page'],'site-member') !== false){
 					add_action('admin_print_scripts',array('member_scripts','admin'));
-					echo "wow";
+					//echo "wow";
 				}
 			}
 		}
@@ -75,5 +75,4 @@ function sitemember_edit_ui(){require_once('site-member/edit.php');}
 function sitemember_view_ui(){require_once('site-member/view.php');}
 
 function sitemember_settings_ui(){require_once(MEMBERS_DIR_PLUG.'/site-member/settings.php');}
-
 

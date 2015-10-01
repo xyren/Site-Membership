@@ -17,15 +17,30 @@ class site_members{
 	
 	public function init() {
 		
+		global $wpdb, $facebook;
+		
+		$_options = get_option('site-member-settings');
+
 		foreach (self::rewrite() as $rule => $rewrite) {
 	        add_rewrite_rule( $rule,$rewrite, 'top' );
 	    }
+	    
+	    
 	  
 		add_filter('template_include', array( 'site_members', 'template_include' ),1,1);  
 		//add_filter('template_redirect', array( 'site_members', 'template_include' ));  
 		
 		add_filter( 'query_vars', array( 'site_members', 'prefix_register_query_var'));
 		account::ajax_init();
+		
+		if(!class_exists('Facebook')){
+			require(MEMBERS_DIR_PLUG.'/ext/facebook-sdk/facebook.php');
+		}
+		
+		$facebook = new Facebook(array(
+		  'appId' => $_options['api_facebook_appID'],
+		  'secret' => $_options['api_facebook_appSecret'],
+		));
 	}
 	
 	public function prefix_register_query_var($vars){
@@ -62,6 +77,25 @@ class site_members{
 		}
 		return false;
 	}
+	
+	public function get_frontend_levelID(){
+		$_level = get_query_var('lv');
+		if(!empty($_level)){
+			$_level=ucwords(str_replace('-',' ',$_level));
+			if(in_array($_level, site_members::$memberLevel)){
+				$_levelTitle = $_level;
+			}else{
+			$_levelTitle = $_level = 'Member';
+			}
+		}else{
+			$_levelTitle = $_level = 'Member';
+		}
+		
+		(int)$_keyLevel = array_search($_levelTitle, site_members::$memberLevel); // $key = 2; level
+		return $_keyLevel;
+	}
+	
+	
 	
 	public function rewriteRules($rules){
 		$newrules = self::rewrite();
@@ -137,6 +171,13 @@ class site_members{
 			';
 		$_sql[] = 'ALTER TABLE `'. MEMBERS_TABLE .'` ADD PRIMARY KEY (`ID`);';
 
+	    $_sql[] = "
+	        CREATE TABLE IF NOT EXISTS {$wpdb->prefix}sitemembership_social_users (
+			    `ID` int(11) NOT NULL,
+			    `type` varchar(20) NOT NULL,
+			    `identifier` varchar(100) NOT NULL,
+			    KEY `ID` (`ID`,`type`)
+	        );";
 		
 		$_error = array();
 		foreach($_sql as $_query){

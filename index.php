@@ -27,6 +27,7 @@ $upload_dir = array(
 require_once('_inc/init.php');
 require_once('_inc/scripts.php');
 include_once('_inc/menu.php');
+include_once('_inc/help.php');
 
 /* 
 
@@ -44,6 +45,13 @@ include_once('site-member/class.table.php');
 include_once('site-member/screen.php'); 
 
 add_action( 'init', 'site_members::init' );
+
+
+add_action('init', 'my_ajax_rewrite_init');
+function my_ajax_rewrite_init() {
+	add_rewrite_rule('^test/$', 'wp-admin/admin-ajax.php', 'top' );
+}
+
 
 register_activation_hook( __FILE__, 'site_member_install');
 register_deactivation_hook(__FILE__, 'uninstall_site_member');

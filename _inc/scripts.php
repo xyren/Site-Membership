@@ -88,5 +88,4 @@ class member_scripts extends site_members {
 	}
 	
 	
-	
 }
